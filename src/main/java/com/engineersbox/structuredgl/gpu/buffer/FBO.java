@@ -1,6 +1,7 @@
 package com.engineersbox.structuredgl.gpu.buffer;
 
 import com.engineersbox.structuredgl.gpu.GPUResource;
+import com.engineersbox.structuredgl.gpu.ValidationState;
 import com.engineersbox.structuredgl.gpu.texture.MemoryTexture;
 
 import static org.lwjgl.opengl.GL30.*;
@@ -16,10 +17,14 @@ public class FBO extends GPUResource {
     }
 
     @Override
-    public void validate() {
+    public ValidationState validate() {
         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-            throw new RuntimeException("Cannot complete framebuffer");
+            return new ValidationState(
+                    false,
+                    "Cannot complete framebuffer"
+            );
         }
+        return new ValidationState(true, null);
     }
 
     @Override

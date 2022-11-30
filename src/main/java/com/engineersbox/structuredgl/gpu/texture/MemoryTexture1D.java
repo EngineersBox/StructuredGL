@@ -32,5 +32,6 @@ public class MemoryTexture1D extends MemoryTexture {
                 type,
                 pixels
         );
+        super.setDimensions(dimensions);
     }
 }

@@ -33,6 +33,7 @@ public class MemoryTexture2D extends MemoryTexture {
                 type,
                 pixels
         );
+        super.setDimensions(dimensions);
     }
 
 }

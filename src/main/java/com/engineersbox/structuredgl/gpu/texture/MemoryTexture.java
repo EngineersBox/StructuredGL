@@ -1,6 +1,7 @@
 package com.engineersbox.structuredgl.gpu.texture;
 
 import com.engineersbox.structuredgl.gpu.GPUResource;
+import org.joml.Vector3i;
 
 import javax.annotation.Nullable;
 
@@ -13,9 +14,12 @@ public abstract class MemoryTexture extends GPUResource {
 
     protected final TextureType type;
 
+    private final Vector3i dimensions;
+
     protected MemoryTexture(final TextureType type) {
         super.id = glGenTextures();
         this.type = type;
+        this.dimensions = new Vector3i();
     }
 
     public abstract void createTexImage(final int level,
@@ -25,6 +29,14 @@ public abstract class MemoryTexture extends GPUResource {
                                         final int format,
                                         final int type,
                                         @Nullable final ByteBuffer pixels);
+
+    protected void setDimensions(final int[] dimensions) {
+        this.dimensions.set(
+                dimensions.length >= 1 ? dimensions[0] : this.dimensions.x(),
+                dimensions.length >= 2 ? dimensions[1] : this.dimensions.y(),
+                dimensions.length >= 3 ? dimensions[2] : this.dimensions.z()
+        );
+    }
 
     public void setTexParameterf(final int paramName,
                                  final float value) {
@@ -46,6 +58,10 @@ public abstract class MemoryTexture extends GPUResource {
 
     public TextureType getType() {
         return this.type;
+    }
+
+    public Vector3i getDimensions() {
+        return this.dimensions;
     }
 
     @Override

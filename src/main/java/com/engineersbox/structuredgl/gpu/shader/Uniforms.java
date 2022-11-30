@@ -1,12 +1,11 @@
 package com.engineersbox.structuredgl.gpu.shader;
 
-import org.joml.Matrix4f;
-import org.joml.Vector2f;
-import org.joml.Vector3f;
-import org.joml.Vector4f;
+import org.joml.*;
 import org.lwjgl.system.MemoryStack;
 
+import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -14,11 +13,15 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.lwjgl.opengl.GL20.*;
+import static org.lwjgl.opengl.GL40.*;
 
 public class Uniforms {
 
     private static final String NEWLINE_CHARACTER = System.getProperty("line.separator");
     private static final Pattern GLSL_UNIFORM_PATTERN = Pattern.compile("uniform\\s+\\w+\\s(\\w+)(\\[.+\\])?");
+    private static final int MAT4_ELEMENT_COUNT = 16;
+    private static final int MAT3_ELEMENT_COUNT = 9;
+    private static final int MAT2_ELEMENT_COUNT = 4;
 
     private final int programId;
     public final Map<String, Integer> uniformFields;
@@ -68,25 +71,6 @@ public class Uniforms {
     }
 
     public void setUniform(final String name,
-                           final Matrix4f value) {
-        try (final MemoryStack stack = MemoryStack.stackPush()) {
-            glUniformMatrix4fv(
-                    getUniformLocation(name),
-                    false,
-                    value.get(stack.mallocFloat(16))
-            );
-        }
-    }
-
-    public void setUniform(final String name,
-                           final int value) {
-        glUniform1i(
-                getUniformLocation(name),
-                value
-        );
-    }
-
-    public void setUniform(final String name,
                            final boolean value) {
         glUniform1i(
                 getUniformLocation(name),
@@ -106,21 +90,21 @@ public class Uniforms {
     }
 
     public void setUniform(final String name,
-                           final Vector2f value) {
-        glUniform2f(
-                getUniformLocation(name),
-                value.x,
-                value.y
-        );
-    }
-
-    public void setUniform(final String name,
                            final Vector3f value) {
         glUniform3f(
                 getUniformLocation(name),
                 value.x,
                 value.y,
                 value.z
+        );
+    }
+
+    public void setUniform(final String name,
+                           final Vector2f value) {
+        glUniform2f(
+                getUniformLocation(name),
+                value.x,
+                value.y
         );
     }
 
@@ -133,16 +117,178 @@ public class Uniforms {
     }
 
     public void setUniform(final String name,
+                           final Vector4i value) {
+        glUniform4i(
+                getUniformLocation(name),
+                value.x,
+                value.y,
+                value.z,
+                value.w
+        );
+    }
+
+    public void setUniform(final String name,
+                           final Vector3i value) {
+        glUniform3i(
+                getUniformLocation(name),
+                value.x,
+                value.y,
+                value.z
+        );
+    }
+
+    public void setUniform(final String name,
+                           final Vector2i value) {
+        glUniform2i(
+                getUniformLocation(name),
+                value.x,
+                value.y
+        );
+    }
+
+    public void setUniform(final String name,
+                           final int value) {
+        glUniform1i(
+                getUniformLocation(name),
+                value
+        );
+    }
+
+    public void setUniform(final String name,
+                           final Vector4d value) {
+        glUniform4d(
+                getUniformLocation(name),
+                value.x,
+                value.y,
+                value.z,
+                value.w
+        );
+    }
+
+    public void setUniform(final String name,
+                           final Vector3d value) {
+        glUniform3d(
+                getUniformLocation(name),
+                value.x,
+                value.y,
+                value.z
+        );
+    }
+
+    public void setUniform(final String name,
+                           final Vector2d value) {
+        glUniform2d(
+                getUniformLocation(name),
+                value.x,
+                value.y
+        );
+    }
+
+    public void setUniform(final String name,
+                           final double value) {
+        glUniform1d(
+                getUniformLocation(name),
+                value
+        );
+    }
+
+    public void setUniform(final String name,
+                           final boolean transpose,
                            final Matrix4f[] matrices) {
         try (final MemoryStack stack = MemoryStack.stackPush()) {
             final int length = matrices != null ? matrices.length : 0;
-            final FloatBuffer fb = stack.mallocFloat(16 * length);
+            final FloatBuffer fb = stack.mallocFloat(MAT4_ELEMENT_COUNT * length);
             for (int i = 0; i < length; i++) {
-                matrices[i].get(16 * i, fb);
+                matrices[i].get(MAT4_ELEMENT_COUNT * i, fb);
             }
             glUniformMatrix4fv(
                     getUniformLocation(name),
-                    false,
+                    transpose,
+                    fb
+            );
+        }
+    }
+
+    public void setUniform(final String name,
+                           final boolean transpose,
+                           final Matrix3f[] matrices) {
+        try (final MemoryStack stack = MemoryStack.stackPush()) {
+            final int length = matrices != null ? matrices.length : 0;
+            final FloatBuffer fb = stack.mallocFloat(MAT3_ELEMENT_COUNT * length);
+            for (int i = 0; i < length; i++) {
+                matrices[i].get(MAT3_ELEMENT_COUNT * i, fb);
+            }
+            glUniformMatrix3fv(
+                    getUniformLocation(name),
+                    transpose,
+                    fb
+            );
+        }
+    }
+
+    public void setUniform(final String name,
+                           final boolean transpose,
+                           final Matrix2f[] matrices) {
+        try (final MemoryStack stack = MemoryStack.stackPush()) {
+            final int length = matrices != null ? matrices.length : 0;
+            final FloatBuffer fb = stack.mallocFloat(MAT2_ELEMENT_COUNT * length);
+            for (int i = 0; i < length; i++) {
+                matrices[i].get(MAT2_ELEMENT_COUNT * i, fb);
+            }
+            glUniformMatrix2fv(
+                    getUniformLocation(name),
+                    transpose,
+                    fb
+            );
+        }
+    }
+
+    public void setUniform(final String name,
+                           final boolean transpose,
+                           final Matrix4d[] matrices) {
+        try (final MemoryStack stack = MemoryStack.stackPush()) {
+            final int length = matrices != null ? matrices.length : 0;
+            final DoubleBuffer fb = stack.mallocDouble(MAT4_ELEMENT_COUNT * length);
+            for (int i = 0; i < length; i++) {
+                matrices[i].get(MAT4_ELEMENT_COUNT * i, fb);
+            }
+            glUniformMatrix4dv(
+                    getUniformLocation(name),
+                    transpose,
+                    fb
+            );
+        }
+    }
+
+    public void setUniform(final String name,
+                           final boolean transpose,
+                           final Matrix3d[] matrices) {
+        try (final MemoryStack stack = MemoryStack.stackPush()) {
+            final int length = matrices != null ? matrices.length : 0;
+            final DoubleBuffer fb = stack.mallocDouble(MAT3_ELEMENT_COUNT * length);
+            for (int i = 0; i < length; i++) {
+                matrices[i].get(MAT3_ELEMENT_COUNT * i, fb);
+            }
+            glUniformMatrix3dv(
+                    getUniformLocation(name),
+                    transpose,
+                    fb
+            );
+        }
+    }
+
+    public void setUniform(final String name,
+                           final boolean transpose,
+                           final Matrix2d[] matrices) {
+        try (final MemoryStack stack = MemoryStack.stackPush()) {
+            final int length = matrices != null ? matrices.length : 0;
+            final DoubleBuffer fb = stack.mallocDouble(MAT2_ELEMENT_COUNT * length);
+            for (int i = 0; i < length; i++) {
+                matrices[i].get(MAT2_ELEMENT_COUNT * i, fb);
+            }
+            glUniformMatrix2dv(
+                    getUniformLocation(name),
+                    transpose,
                     fb
             );
         }
